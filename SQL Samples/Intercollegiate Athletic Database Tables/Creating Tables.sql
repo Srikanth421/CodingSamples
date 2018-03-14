@@ -1,3 +1,4 @@
+-- Drop tables if they exist
 DROP TABLE EVENTPLANLINE;
 DROP TABLE EVENTPLAN;
 DROP TABLE EVENTREQUEST;
@@ -7,6 +8,7 @@ DROP TABLE RESOURCETBL;
 DROP TABLE CUSTOMER;
 DROP TABLE EMPLOYEE;
 
+-- Creating required tables
 -------------------- EMPLOYEE --------------------------------
 
  CREATE TABLE Employee 
@@ -150,7 +152,8 @@ DROP TABLE EMPLOYEE;
   COMMENT ON COLUMN EVENTPLANLINE.TIMEEND IS 'Time end';
   COMMENT ON COLUMN EVENTPLANLINE.NUMBERFLD IS 'ORIGINAL NAME:number , Number of resources needed';
 
-  Insert into EMPLOYEE (EMPNO,EMPNAME,DEPARTMENT,EMAIL,PHONE) values ('E100','Chuck Coordinator','Administration','chuck@colorado.edu','3-1111');
+-- Inserting data
+Insert into EMPLOYEE (EMPNO,EMPNAME,DEPARTMENT,EMAIL,PHONE) values ('E100','Chuck Coordinator','Administration','chuck@colorado.edu','3-1111');
 Insert into EMPLOYEE (EMPNO,EMPNAME,DEPARTMENT,EMAIL,PHONE) values ('E101','Mary Manager','Football','mary@colorado.edu','5-1111');
 Insert into EMPLOYEE (EMPNO,EMPNAME,DEPARTMENT,EMAIL,PHONE) values ('E102','Sally Supervisor','Planning','sally@colorado.edu','3-2222');
 Insert into EMPLOYEE (EMPNO,EMPNAME,DEPARTMENT,EMAIL,PHONE) values ('E103','Alan Administrator','Administration','alan@colorado.edu','3-3333');
@@ -231,169 +234,7 @@ Insert into EVENTPLANLINE (PLANNO,LINENO,TIMESTART,TIMEEND,NUMBERFLD,LOCNO,RESNO
 Insert into EVENTPLANLINE (PLANNO,LINENO,TIMESTART,TIMEEND,NUMBERFLD,LOCNO,RESNO) values ('P95',4, to_date('26-OCT-13 13:00:00','DD-MON-RR HH24:MI:SS'), to_date('26-OCT-13 17:00:00','DD-MON-RR HH24:MI:SS'),2,'L100','R103');
 Insert into EVENTPLANLINE (PLANNO,LINENO,TIMESTART,TIMEEND,NUMBERFLD,LOCNO,RESNO) values ('P95',5, to_date('26-OCT-13 13:00:00','DD-MON-RR HH24:MI:SS'), to_date('26-OCT-13 17:00:00','DD-MON-RR HH24:MI:SS'),2,'L101','R104');
 
-select * from employee;
-select * from resourcetbl;
-select * from eventrequest;
-select * from eventplan;
-select * from eventplanline;
-select * from customer;
-select * from location;
-select * from facility;
 
-SELECT DISTINCT city,state,zip FROM customer;
-SELECT empname,department,phone,email FROM employee WHERE phone LIKE '3-%';
-
-
-
-
-
-
-SELECT * FROM resourcetbl WHERE rate BETWEEN 10 AND 20 ORDER BY rate;
-
-
-
-SELECT eventno,
-  DATEAUTH,
-  status
-FROM eventrequest
-WHERE status IN('Approved','Denied')
-AND dateauth BETWEEN '01-JUL-13' AND '31-JUL-13';
-
-SELECT locno,
-  locname
-FROM location l
-JOIN facility f
-ON l.facno    =f.facno
-WHERE facname = 'Basketball arena';
-
-SELECT planno,
-  COUNT(lineno)  AS lines,
-  SUM(numberfld) AS resources_assigned
-FROM eventplanline
-GROUP BY planno
-HAVING COUNT(*)>1; 
-select * from eventplan;
-SELECT er.eventno,
-  dateheld,
-  COUNT(planno)
-FROM eventrequest er
-INNER JOIN eventplan ep
-ON er.EVENTNO=ep.EVENTNO
-WHERE ep.WORKDATE BETWEEN '01-DEC-13' AND '31-DEC-13'
-GROUP BY er.eventno,
-  dateheld
-HAVING COUNT(*)>1;
-select * from facility;
-select * from location;
-select * from eventplan;
-select * from eventrequest;
-select * from eventplanline;
-SELECT planno,
-  ep.eventno,
-  workdate,
-  activity
-FROM eventrequest er
-INNER JOIN facility f
-ON f.facno=er.facno
-INNER JOIN eventplan ep
-ON ep.eventno=er.eventno
-WHERE workdate BETWEEN '01-DEC-13' AND '31-DEC-13'
-AND facname='Basketball arena';
-select * from employee;
-SELECT er.eventno,dateheld,status,er.ESTCOST
-FROM eventrequest er
-INNER JOIN eventplan ep
-ON ep.eventno=er.eventno
-INNER JOIN employee e
-ON e.EMPNO=ep.EMPNO
-INNER JOIN facility f
-ON f.facno=er.facno
-WHERE e.empname LIKE 'Mary Manager'
-AND f.facname LIKE 'Basketball arena'
-AND er.dateheld BETWEEN '01-OCT-13' AND '31-DEC-13';
-
-SELECT * FROM resourcetbl;
-SELECT ep.planno,lineno,resname,numberfld,lo.locname,timestart,timeend
-FROM facility f
-INNER JOIN location lo
-ON f.facno=lo.facno
-INNER JOIN eventrequest er
-ON f.facno=er.facno
-INNER JOIN eventplan ep
-ON ep.eventno=er.eventno
-INNER JOIN eventplanline epl
-ON ep.planno = epl.planno
-INNER JOIN resourcetbl r
-ON r.resno = epl.resno
-WHERE activity LIKE 'Operation'
-AND f.facname LIKE 'Basketball arena'
-AND er.dateheld BETWEEN '01-OCT-13' AND '31-DEC-13';
-
-
-
-
-
-
-
-INSERT INTO facility
-  (facno,facname
-  ) VALUES
-  ('F104','Swimming Pool'
-  );
-SELECT * FROM facility;
-
-
-
-INSERT INTO location
-  (locno,facno,locname
-  ) VALUES
-  ('L108','F104','Locker Room'
-  );
-SELECT * FROM location;
-
-
-
-UPDATE location SET locname='Gate' WHERE locno='L107';
-SELECT * FROM location;
-
-
-
-DELETE FROM location WHERE locno='L108';
-SELECT * FROM location;
-
-
-
-SELECT eventrequest.eventno, dateheld, COUNT(*) "Number of Plans"
-FROM eventrequest, eventplan
-WHERE eventplan.workdate BETWEEN to_date('12/1/2013','mm/dd/yyyy') AND to_date('12/31/2013','mm/dd/yyyy')
-      AND eventrequest.eventno = eventplan.eventno
-GROUP BY eventrequest.eventno, dateheld
-HAVING COUNT(*) > 1;
-
-SELECT eventplan.planno, eventrequest.eventno, workdate, activity
-FROM eventrequest, eventplan, facility
-WHERE eventplan.workdate BETWEEN to_date('12/1/2013','mm/dd/yyyy') AND to_date('12/31/2013','mm/dd/yyyy')
-      AND eventrequest.eventno = eventplan.eventno 
-      AND eventrequest.facno = facility.facno
-      AND facname = 'Basketball arena';
-
-SELECT eventrequest.eventno, dateheld, status, estcost
-FROM eventrequest, employee, facility, eventplan
-WHERE dateheld BETWEEN to_date('10/1/2013','mm/dd/yyyy') AND to_date('12/31/2013','mm/dd/yyyy')
-      AND eventplan.empno = employee.empno AND eventrequest.facno = facility.facno
-      AND facname = 'Basketball arena' AND empname = 'Mary Manager'
-      AND eventrequest.eventno = eventplan.eventno;
-
-SELECT eventplan.planno, lineno, locname, resname, numberfld, 
-                timestart, timeend
-                
-FROM facility, eventplan, eventplanline, resourcetbl, location
-WHERE eventplan.workdate BETWEEN to_date('10/1/2013','mm/dd/yyyy') AND to_date('12/31/2013','mm/dd/yyyy')
-      AND eventplan.planno = eventplanline.planno AND location.facno = facility.facno
-      AND facname = 'Basketball arena' AND eventplanline.resno = resourcetbl.resno
-      AND location.locno = eventplanline.locno 
-      
-      AND eventplan.activity = 'Operation';
 
 
 
